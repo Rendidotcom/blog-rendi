@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Blog Rendi</title>
+</head>
+<body>
+  <h1>Blog Edukasi Rendi</h1>
+  <div id="posts"></div>
+
+  <script>
+    const API = "PASTE_URL_APPS_SCRIPT_KAMU";
+
+    fetch(API + "?type=posts")
+      .then(res => res.json())
+      .then(data => {
+        let html = "";
+        data.forEach(p => {
+          html += `
+            <h2>
+              <a href="post.html?slug=${p.slug}">
+                ${p.title}
+              </a>
+            </h2>
+          `;
+        });
+        document.getElementById("posts").innerHTML = html;
+      });
+  </script>
+</body>
+</html>
