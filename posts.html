@@ -2,6 +2,32 @@
 <html>
 <head>
   <title>Artikel</title>
+  <style>
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background: #f9fafb;
+  }
+
+  h1 {
+    color: #222;
+  }
+
+  .content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+
+  a {
+    display: inline-block;
+    margin-top: 20px;
+    color: #2563eb;
+  }
+</style>
 </head>
 <body>
   <div id="content"></div>
@@ -16,9 +42,11 @@
       .then(res => res.json())
       .then(p => {
         document.getElementById("content").innerHTML = `
-          <h1>${p.title}</h1>
-          <div>${p.content}</div>
-        `;
+  <h1>${p.title}</h1>
+  <small>${p.date} • ${p.author}</small>
+  <div class="content">${p.content}</div>
+  <a href="index.html">← Kembali</a>
+`;
       });
   </script>
 </body>
