@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Artikel</title>
+</head>
+<body>
+  <div id="content"></div>
+
+  <script>
+    const API = "PASTE_URL_APPS_SCRIPT_KAMU";
+
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get("slug");
+
+    fetch(`${API}?type=post&slug=${slug}`)
+      .then(res => res.json())
+      .then(p => {
+        document.getElementById("content").innerHTML = `
+          <h1>${p.title}</h1>
+          <div>${p.content}</div>
+        `;
+      });
+  </script>
+</body>
+</html>
