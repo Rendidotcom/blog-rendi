@@ -1,7 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Blog Rendi</title>
+  <title>Blog Edukasi Rendi</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+      background: #f9fafb;
+    }
+
+    h1 {
+      text-align: center;
+      color: #222;
+    }
+
+    .post {
+      background: white;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    a {
+      text-decoration: none;
+      color: #2563eb;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
   <h1>Blog Edukasi Rendi</h1>
@@ -16,12 +47,15 @@
         let html = "";
         data.forEach(p => {
           html += `
-            <h2>
-              <a href="post.html?slug=${p.slug}">
-                ${p.title}
-              </a>
-            </h2>
-          `;
+  <div class="post">
+    <h2>
+      <a href="post.html?slug=${p.slug}">
+        ${p.title}
+      </a>
+    </h2>
+    <small>${p.date} • ${p.author}</small>
+  </div>
+`;
         });
         document.getElementById("posts").innerHTML = html;
       });
