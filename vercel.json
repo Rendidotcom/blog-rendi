@@ -1,6 +1,10 @@
 {
   "routes": [
     { "src": "/", "dest": "/index.html" },
+
+    { "src": "/sitemap.xml", "dest": "/sitemap.xml" },
+    { "src": "/robots.txt", "dest": "/robots.txt" },
+
     { "src": "/(.*)", "dest": "/post.html" }
   ]
 }
