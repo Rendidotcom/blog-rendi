@@ -50,6 +50,25 @@
       font-size: 14px;
       margin-top: 5px;
     }
+
+    #pagination {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 6px 10px;
+      margin: 3px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+    }
+
+    button.active {
+      font-weight: bold;
+      background: #2b6cb0;
+      color: white;
+    }
   </style>
 </head>
 
@@ -60,6 +79,7 @@
     <input type="text" id="search" placeholder="Cari artikel..." />
 
     <div id="posts">Loading...</div>
+    <div id="pagination"></div>
 
   </div>
 
@@ -69,8 +89,6 @@ const API = "https://script.google.com/macros/s/AKfycby4bOozGRubfyWgYmkgz8AaK4AA
 let allPosts = [];
 let currentPage = 1;
 const perPage = 5;
-  
-document.getElementById("posts").innerHTML = "Loading...";
 
 fetch(API)
   .then(res => res.json())
@@ -81,7 +99,7 @@ fetch(API)
 
     render(allPosts);
   })
-  .catch(err => {
+  .catch(() => {
     document.getElementById("posts").innerHTML =
       "<p style='color:red'>Gagal memuat data</p>";
   });
@@ -89,36 +107,46 @@ fetch(API)
 function render(data) {
   let html = "";
 
-  if (data.length === 0) {
+  // 🔥 pagination slicing
+  const start = (currentPage - 1) * perPage;
+  const end = start + perPage;
+  const paginated = data.slice(start, end);
+
+  if (paginated.length === 0) {
     html = "<p>Tidak ada artikel ditemukan</p>";
   } else {
-    data.forEach(post => {
+    paginated.forEach(post => {
       html += `
         <div class="card">
           <a href="/${post.slug}">${post.title}</a>
-          <div class="meta">${new Date(post.date).toLocaleDateString("id-ID")} • ${post.author}</div>
+          <div class="meta">
+            ${new Date(post.date).toLocaleDateString("id-ID")} • ${post.author}
+          </div>
         </div>
       `;
     });
   }
 
   document.getElementById("posts").innerHTML = html;
+
+  renderPagination(data.length);
 }
 
-  function renderPagination(total) {
+function renderPagination(total) {
   const totalPages = Math.ceil(total / perPage);
-  let html = "<div style='margin-top:20px;'>";
+  let html = "";
 
   for (let i = 1; i <= totalPages; i++) {
     html += `
-      <button onclick="goPage(${i})" style="margin:5px;">
+      <button 
+        class="${i === currentPage ? 'active' : ''}"
+        onclick="goPage(${i})">
         ${i}
       </button>
     `;
   }
 
-  html += "</div>";
-  return html;
+  document.getElementById("pagination").innerHTML = html;
 }
 
 function goPage(page) {
@@ -132,10 +160,10 @@ document.getElementById("search").addEventListener("input", function() {
   currentPage = 1;
 
   const filtered = allPosts.filter(p =>
-  (p.title || "").toLowerCase().includes(keyword) ||
-  (p.content || "").toLowerCase().includes(keyword)
-);
-  
+    (p.title || "").toLowerCase().includes(keyword) ||
+    (p.content || "").toLowerCase().includes(keyword)
+  );
+
   render(filtered);
 });
 </script>
