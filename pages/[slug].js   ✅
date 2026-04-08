@@ -1,0 +1,32 @@
+import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
+
+export default function DetailPost() {
+  const router = useRouter()
+  const { slug } = router.query
+
+  const [post, setPost] = useState(null)
+
+  useEffect(() => {
+    if (!slug) return
+
+    fetch(`https://script.googleusercontent.com/macros/s/YOUR_WEB_APP_URL/exec?slug=${slug}`)
+      .then(res => res.json())
+      .then(data => {
+        setPost(data)
+      })
+  }, [slug])
+
+  if (!post) return <p>Loading...</p>
+
+  if (post.error) return <p>Artikel tidak ditemukan</p>
+
+  return (
+    <div style={{ maxWidth: 800, margin: '40px auto' }}>
+      <h1>{post.title}</h1>
+      <p>{post.date} • {post.author}</p>
+
+      <div dangerouslySetInnerHTML={{ __html: post.content }} />
+    </div>
+  )
+}
