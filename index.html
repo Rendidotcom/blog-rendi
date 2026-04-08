@@ -2,6 +2,8 @@
 <html>
 <head>
   <title>Blog Edukasi Rendi</title>
+  <input type="text" id="search" placeholder="Cari artikel..." />
+<br><br>
   <style>
     body {
       font-family: Arial;
@@ -39,22 +41,45 @@
   </div>
 
 <script>
+
 const API = "https://script.google.com/macros/s/AKfycby4bOozGRubfyWgYmkgz8AaK4AA55nOFgsZ9vWWIVichcVz7JylPrmhZhIYAY1De5LM/exec";
+let allPosts = [];
 
 fetch(API)
   .then(res => res.json())
   .then(data => {
-    let html = "";
-    data.forEach(post => {
-      html += `
-        <div class="card">
-          <a href="/${post.slug}">${post.title}</a>
-          <div class="meta">${post.date} • ${post.author}</div>
-        </div>
-      `;
-    });
-    document.getElementById("posts").innerHTML = html;
+    // hanya publish + urut terbaru
+    allPosts = data
+      .filter(p => p.status === "publish")
+      .sort((a,b) => new Date(b.date) - new Date(a.date));
+
+    render(allPosts);
   });
+
+function render(data) {
+  let html = "";
+  data.forEach(post => {
+    html += `
+      <div class="card">
+        <a href="/${post.slug}">${post.title}</a>
+        <div class="meta">${post.date} • ${post.author}</div>
+      </div>
+    `;
+  });
+  document.getElementById("posts").innerHTML = html;
+}
+
+// SEARCH
+document.getElementById("search").addEventListener("input", function() {
+  const keyword = this.value.toLowerCase();
+
+  const filtered = allPosts.filter(p =>
+    p.title.toLowerCase().includes(keyword) ||
+    p.content.toLowerCase().includes(keyword)
+  );
+
+  render(filtered);
+});
 </script>
 
 </body>
