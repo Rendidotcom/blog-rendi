@@ -1,0 +1,8 @@
+{
+  "routes": [
+    {
+      "src": "/([^/]+)",
+      "dest": "/post.html?slug=$1"
+    }
+  ]
+}
