@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://blog-edukasi-holistic.vercel.app/sitemap.xml
