@@ -3,7 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <title>Blog Edukasi Holistic</title>
+  <meta name="description" content="Blog Edukasi Holistic berisi artikel pendidikan, pembelajaran, dan pengembangan diri.">
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Open Graph (untuk share WA, FB) -->
+<meta property="og:title" content="Blog Edukasi Holistic">
+<meta property="og:description" content="Artikel edukasi, pembelajaran, dan inspirasi.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://blog-rendi.vercel.app">
+  
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -73,7 +82,7 @@
 </head>
 
 <body>
-  <div class="container">
+  <main class="container">
 
     <h1>Blog Edukasi Holistic</h1>
     <input type="text" id="search" placeholder="Cari artikel..." />
@@ -117,7 +126,7 @@ function render(data) {
   } else {
     paginated.forEach(post => {
       html += `
-        <div class="card">
+        <article class="card">
           <a href="/${post.slug}">${post.title}</a>
           <div class="meta">
             ${new Date(post.date).toLocaleDateString("id-ID")} • ${post.author}
