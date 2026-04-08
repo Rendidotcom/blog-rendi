@@ -2,27 +2,28 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- SEO BASIC -->
   <title id="title">Loading...</title>
   <meta name="description" id="desc" content="">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="index, follow">
 
-  <!-- OPEN GRAPH (SHARE WA/FB) -->
+  <!-- OPEN GRAPH -->
   <meta property="og:title" id="ogtitle">
   <meta property="og:description" id="ogdesc">
   <meta property="og:type" content="article">
   <meta property="og:url" id="ogurl">
 
-  <!-- OPTIONAL SEO -->
-  <meta name="robots" content="index, follow">
+  <!-- STRUCTURED DATA -->
+  <script type="application/ld+json" id="jsonld"></script>
 
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #f5f5f5;
-      padding: 40px;
       margin: 0;
+      padding: 40px;
     }
 
     .container {
@@ -34,18 +35,18 @@
       margin-bottom: 10px;
     }
 
+    .meta {
+      color: gray;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
     .card {
       background: white;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       line-height: 1.6;
-    }
-
-    .meta {
-      color: gray;
-      font-size: 14px;
-      margin-bottom: 20px;
     }
 
     a {
@@ -57,14 +58,16 @@
 
 <body>
 <div class="container">
-  <div id="post">Loading...</div>
+  <div id="post">
+    <h2>Memuat artikel...</h2>
+  </div>
 </div>
 
 <script>
 const API = "https://script.google.com/macros/s/AKfycby4bOozGRubfyWgYmkgz8AaK4AA55nOFgsZ9vWWIVichcVz7JylPrmhZhIYAY1De5LM/exec";
 
-// ambil slug dari URL
-const slug = window.location.pathname.replace("/", "");
+// SLUG AMAN (handle / dan / di belakang)
+const slug = window.location.pathname.replace(/^\/|\/$/g, "");
 
 fetch(API)
   .then(res => res.json())
@@ -81,18 +84,35 @@ fetch(API)
     const title = post.title || "Tanpa Judul";
     const content = post.content || "";
     const author = post.author || "Admin";
-    const date = new Date(post.date).toLocaleDateString("id-ID");
+    const rawDate = post.date || new Date();
+    const date = new Date(rawDate).toLocaleDateString("id-ID");
+
+    // bersihkan HTML untuk deskripsi
     const desc = content.replace(/<[^>]*>?/gm, "").substring(0, 150);
 
-    // ===== SEO SETTING =====
-    document.getElementById("title").innerText = title + " | Blog Edukasi Holistic";
+    // ===== SEO META =====
+    document.title = title + " | Blog Edukasi Holistic";
     document.getElementById("desc").setAttribute("content", desc);
 
     document.getElementById("ogtitle").setAttribute("content", title);
     document.getElementById("ogdesc").setAttribute("content", desc);
     document.getElementById("ogurl").setAttribute("content", window.location.href);
 
-    // ===== RENDER HTML =====
+    // ===== STRUCTURED DATA (PENTING) =====
+    document.getElementById("jsonld").textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": title,
+      "description": desc,
+      "author": {
+        "@type": "Person",
+        "name": author
+      },
+      "datePublished": rawDate,
+      "mainEntityOfPage": window.location.href
+    });
+
+    // ===== RENDER =====
     document.getElementById("post").innerHTML = `
       <h1>${title}</h1>
       <div class="meta">${date} • ${author}</div>
@@ -101,7 +121,7 @@ fetch(API)
       <a href="/">← Kembali ke Beranda</a>
     `;
   })
-  .catch(err => {
+  .catch(() => {
     document.getElementById("post").innerHTML =
       "<p style='color:red'>Gagal memuat artikel</p>";
   });
