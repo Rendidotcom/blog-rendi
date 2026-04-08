@@ -3,50 +3,56 @@
 <head>
   <title>Artikel</title>
   <style>
-  body {
-    font-family: Arial, sans-serif;
-    max-width: 800px;
-    margin: auto;
-    padding: 20px;
-    background: #f9fafb;
-  }
-
-  h1 {
-    color: #222;
-  }
-
-  .content {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-  }
-
-  a {
-    display: inline-block;
-    margin-top: 20px;
-    color: #2563eb;
-  }
-</style>
+    body {
+      font-family: Arial;
+      background: #f5f5f5;
+      padding: 40px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .meta {
+      color: gray;
+      font-size: 14px;
+    }
+  </style>
 </head>
+
 <body>
-  <div id="content"></div>
+<div class="container">
+  <div id="post"></div>
+</div>
 
-  <script>
-    const API = "https://script.google.com/macros/s/AKfycby4bOozGRubfyWgYmkgz8AaK4AA55nOFgsZ9vWWIVichcVz7JylPrmhZhIYAY1De5LM/exec";
+<script>
+const API = "https://script.google.com/macros/s/AKfycby4bOozGRubfyWgYmkgz8AaK4AA55nOFgsZ9vWWIVichcVz7JylPrmhZhIYAY1De5LM/exec";
+const slug = window.location.pathname.replace("/", "");
 
-    const slug = window.location.pathname.substring(1);
+fetch(API)
+  .then(res => res.json())
+  .then(data => {
+    const post = data.find(p => p.slug === slug);
 
-    fetch(`${API}?type=post&slug=${slug}`)
-      .then(res => res.json())
-      .then(p => {
-        document.getElementById("content").innerHTML = `
-  <h1>${p.title}</h1>
-  <small>${p.date} • ${p.author}</small>
-  <div class="content">${p.content}</div>
-  <a href="index.html">← Kembali</a>
-`;
-      });
-  </script>
+    if (!post) {
+      document.getElementById("post").innerHTML = "<h2>Artikel tidak ditemukan</h2>";
+      return;
+    }
+
+    document.getElementById("post").innerHTML = `
+      <h1>${post.title}</h1>
+      <div class="meta">${post.date} • ${post.author}</div>
+      <div class="card">${post.content}</div>
+      <br>
+      <a href="/">← Kembali</a>
+    `;
+  });
+</script>
+
 </body>
 </html>
