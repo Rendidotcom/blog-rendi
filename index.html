@@ -59,7 +59,7 @@
     <h1>Blog Edukasi Holistic</h1>
     <input type="text" id="search" placeholder="Cari artikel..." />
 
-    <div id="posts"></div>
+    <div id="posts">Loading...</div>
 
   </div>
 
@@ -80,31 +80,31 @@ fetch(API)
       .sort((a,b) => new Date(b.date) - new Date(a.date));
 
     render(allPosts);
-    document.getElementById("posts").innerHTML = "Gagal memuat data";
+  })
+  .catch(err => {
+    document.getElementById("posts").innerHTML =
+      "<p style='color:red'>Gagal memuat data</p>";
   });
 
 function render(data) {
-  const start = (currentPage - 1) * perPage;
-  const end = start + perPage;
-  const paginated = data.slice(start, end);
-
   let html = "";
 
-  paginated.forEach(post => {
-    html += `
-      <div class="card">
-        <a href="/${post.slug || "#"}">${post.title || "Tanpa Judul"}</a>
-        <div class="meta">
-          ${(post.date || "-")} • ${(post.author || "Anonim")}
+  if (data.length === 0) {
+    html = "<p>Tidak ada artikel ditemukan</p>";
+  } else {
+    data.forEach(post => {
+      html += `
+        <div class="card">
+          <a href="/${post.slug}">${post.title}</a>
+          <div class="meta">${new Date(post.date).toLocaleDateString("id-ID")} • ${post.author}</div>
         </div>
-      </div>
-    `;
-  });
-
-  html += renderPagination(data.length);
+      `;
+    });
+  }
 
   document.getElementById("posts").innerHTML = html;
 }
+
   function renderPagination(total) {
   const totalPages = Math.ceil(total / perPage);
   let html = "<div style='margin-top:20px;'>";
