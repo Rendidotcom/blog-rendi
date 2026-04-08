@@ -1,8 +1,6 @@
 {
   "routes": [
-    {
-      "src": "/([^/]+)",
-      "dest": "/post.html?slug=$1"
-    }
+    { "src": "/", "dest": "/index.html" },
+    { "src": "/(.*)", "dest": "/post.html" }
   ]
 }
