@@ -35,8 +35,7 @@
   <script>
     const API = "https://script.google.com/macros/s/AKfycby4bOozGRubfyWgYmkgz8AaK4AA55nOFgsZ9vWWIVichcVz7JylPrmhZhIYAY1De5LM/exec";
 
-    const params = new URLSearchParams(window.location.search);
-    const slug = params.get("slug");
+    const slug = window.location.pathname.substring(1);
 
     fetch(`${API}?type=post&slug=${slug}`)
       .then(res => res.json())
