@@ -1,10 +1,11 @@
 {
   "routes": [
-    { "src": "/", "dest": "/index.html" },
-
     { "src": "/sitemap.xml", "dest": "/sitemap.xml" },
     { "src": "/robots.txt", "dest": "/robots.txt" },
     { "src": "/googlef192977912360e3e.html", "dest": "/googlef192977912360e3e.html" },
-    { "src": "/(.*)", "dest": "/post.html" }
+
+    { "src": "/", "dest": "/index.html" },
+
+    { "src": "/artikel-(.*)", "dest": "/post.html" }
   ]
 }
