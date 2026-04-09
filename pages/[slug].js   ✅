@@ -6,46 +6,23 @@ export default function DetailPost() {
   const { slug } = router.query
 
   const [post, setPost] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(false)
 
   useEffect(() => {
     if (!slug) return
 
-    fetch(`https://script.google.com/macros/s/AKfycby4bOozGRubfyWgYmkgz8AaK4AA55nOFgsZ9vWWIVichcVz7JylPrmhZhIYAY1De5LM/exec?type=post&slug=${slug}`)    
+    fetch(`https://script.google.com/macros/s/AKfycby4bOozGRubfyWgYmkgz8AaK4AA55nOFgsZ9vWWIVichcVz7JylPrmhZhIYAY1De5LM/exec?type=post&slug=${slug}`)
       .then(res => res.json())
-      .then(data => {
-        if (data.status === "success") {
-          setPost(data.data)
-        } else {
-          setError(true)
-        }
-      })
-      .catch(() => setError(true))
-      .finally(() => setLoading(false))
+      .then(data => setPost(data))
   }, [slug])
 
-  // loading state
-  if (loading) return <p style={{ padding: 20 }}>Loading...</p>
-
-  // error state
-  if (error || !post) {
-    return <p style={{ padding: 20 }}>Artikel tidak ditemukan</p>
-  }
+  if (!post) return <p>Loading...</p>
+  if (post.error) return <p>Artikel tidak ditemukan</p>
 
   return (
-    <div style={{ maxWidth: 800, margin: '40px auto', padding: 20 }}>
+    <div style={{ maxWidth: 800, margin: '40px auto' }}>
       <h1>{post.title}</h1>
-      
-      <p style={{ color: 'gray', marginBottom: 20 }}>
-        {new Date(post.date).toLocaleDateString()} • {post.author}
-      </p>
-
-      <hr />
-
-      <div
-        dangerouslySetInnerHTML={{ __html: post.content }}
-      />
+      <p>{post.date} • {post.author}</p>
+      <div dangerouslySetInnerHTML={{ __html: post.content }} />
     </div>
   )
 }
