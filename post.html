@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Loading...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial;
+      max-width: 800px;
+      margin: auto;
+      padding: 40px;
+      background: #f5f5f5;
+    }
+
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    .meta {
+      color: gray;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="card" id="post">Loading...</div>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycby4bOozGRubfyWgYmkgz8AaK4AA55nOFgsZ9vWWIVichcVz7JylPrmhZhIYAY1De5LM/exec";
+
+const params = new URLSearchParams(window.location.search);
+const slug = params.get("slug");
+
+if (!slug) {
+  document.getElementById("post").innerHTML = "Slug tidak ditemukan";
+} else {
+  fetch(API + "?slug=" + slug)
+    .then(res => res.json())
+    .then(post => {
+      if (!post || post.error) {
+        document.getElementById("post").innerHTML = "Artikel tidak ditemukan";
+        return;
+      }
+
+      document.title = post.title;
+
+      document.getElementById("post").innerHTML = `
+        <h1>${post.title}</h1>
+        <div class="meta">
+          ${new Date(post.date).toLocaleDateString("id-ID")} • ${post.author}
+        </div>
+        <div>${post.content}</div>
+      `;
+    })
+    .catch(() => {
+      document.getElementById("post").innerHTML = "Gagal load data";
+    });
+}
+</script>
+
+</body>
+</html>
