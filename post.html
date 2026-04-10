@@ -79,13 +79,17 @@ if (!slug) {
   fetch(API + "?slug=" + slug)
     .then(res => res.json())
     .then(data => {
-      if (!data || data.error) {
-        showError("Artikel tidak ditemukan");
-        return;
-      }
 
-      renderPost(data);
-    })
+  // 🔥 HANDLE ARRAY DARI API
+  const post = Array.isArray(data) ? data[0] : data;
+
+  if (!post || post.error) {
+    showError("Artikel tidak ditemukan");
+    return;
+  }
+
+  renderPost(post);
+})
     .catch(() => {
       showError("Gagal mengambil data");
     });
