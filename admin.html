@@ -1,113 +1,59 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <title>Admin - Upload Artikel</title>
-
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #f5f5f5;
-      padding: 40px;
-    }
-
-    .container {
-      max-width: 700px;
-      margin: auto;
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
-
-    button {
-      padding: 12px 20px;
-      border: none;
-      background: black;
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    button:disabled {
-      background: gray;
-    }
-  </style>
-</head>
-
-<body>
-
-<!-- 🔐 LOGIN -->
 <script>
-  const pass = prompt("Password Admin:");
-  if (pass !== "admin123") {
-    document.body.innerHTML = "<h2 style='text-align:center'>❌ Akses ditolak</h2>";
-  }
-</script>
-
-<div class="container">
-  <h1>📤 Upload Artikel</h1>
-
-  <input id="title" placeholder="Judul artikel...">
-
-  <input type="file" id="file" accept=".txt,.doc,.docx">
-
-  <button id="btn" onclick="upload()">Upload</button>
-</div>
-
-<script>
-async function upload() {
+async function publish() {
   const title = document.getElementById("title").value.trim();
-  const fileInput = document.getElementById("file");
-  const file = fileInput.files[0];
+  const fileInput = document.getElementById("file").files[0];
   const btn = document.getElementById("btn");
 
-  if (!title || !file) {
-    alert("❗ Judul & file wajib diisi");
+  if (!title) {
+    alert("Judul wajib diisi");
     return;
   }
 
-  const formData = new FormData();
-  formData.append("title", title);
-  formData.append("file", file);
-  formData.append("key", "admin123");
+  if (!fileInput) {
+    alert("File wajib dipilih");
+    return;
+  }
 
   try {
     btn.disabled = true;
     btn.innerText = "Uploading...";
 
-    const res = await fetch("https://script.google.com/macros/s/AKfycbzj1X9vgy2pAkmyz8TW02VIAQx_eeL4yu976LXeDnolYJEs9DsoGeENpxu6OtfDmvxc/exec", {
-      method: "POST",
-      body: formData
-    });
+    const reader = new FileReader();
 
-    const data = await res.json();
+    reader.onload = async function () {
+      const base64 = reader.result.split(",")[1];
 
-    if (data.success) {
-      alert("✅ File berhasil diupload & tampil di blog");
-      location.href = "/";
-    } else {
-      alert("❌ Error: " + JSON.stringify(data));
-    }
+      const res = await fetch("https://script.google.com/macros/s/AKfycbzj1X9vgy2pAkmyz8TW02VIAQx_eeL4yu976LXeDnolYJEs9DsoGeENpxu6OtfDmvxc/exec", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          title: title,
+          file: base64,
+          fileName: fileInput.name,
+          key: "admin123"
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert("✅ Upload berhasil!");
+        location.href = "/";
+      } else {
+        alert("❌ Error: " + JSON.stringify(data));
+      }
+    };
+
+    reader.readAsDataURL(fileInput);
 
   } catch (err) {
+    alert("❌ Gagal koneksi");
     console.error(err);
-    alert("❌ Gagal koneksi ke server");
   } finally {
     btn.disabled = false;
     btn.innerText = "Upload";
   }
 }
 </script>
-
-</body>
-</html>
