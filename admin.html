@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Admin - Tulis Artikel</title>
+  <title>Admin - Upload Artikel</title>
 
   <style>
     body {
@@ -20,7 +20,7 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
 
-    input, textarea {
+    input {
       width: 100%;
       padding: 12px;
       margin: 10px 0;
@@ -40,14 +40,13 @@
 
     button:disabled {
       background: gray;
-      cursor: not-allowed;
     }
   </style>
 </head>
 
 <body>
 
-<!-- 🔐 SIMPLE LOGIN -->
+<!-- 🔐 LOGIN -->
 <script>
   const pass = prompt("Password Admin:");
   if (pass !== "admin123") {
@@ -56,60 +55,56 @@
 </script>
 
 <div class="container">
-  <h1>✍️ Tulis Artikel</h1>
+  <h1>📤 Upload Artikel</h1>
 
   <input id="title" placeholder="Judul artikel...">
 
-  <textarea id="content" rows="10" placeholder="Isi artikel... (boleh HTML)"></textarea>
+  <input type="file" id="file" accept=".txt,.doc,.docx">
 
-  <button id="btn" onclick="publish()">Publish</button>
+  <button id="btn" onclick="upload()">Upload</button>
 </div>
 
 <script>
-async function publish() {
+async function upload() {
   const title = document.getElementById("title").value.trim();
-  const content = document.getElementById("content").value.trim();
+  const fileInput = document.getElementById("file");
+  const file = fileInput.files[0];
   const btn = document.getElementById("btn");
 
-  if (!title || !content) {
-    alert("❗ Judul & konten wajib diisi");
+  if (!title || !file) {
+    alert("❗ Judul & file wajib diisi");
     return;
   }
 
+  const formData = new FormData();
+  formData.append("title", title);
+  formData.append("file", file);
+  formData.append("key", "admin123");
+
   try {
     btn.disabled = true;
-    btn.innerText = "Mengirim...";
-
-    console.log("Kirim:", { title, content });
+    btn.innerText = "Uploading...";
 
     const res = await fetch("https://script.google.com/macros/s/AKfycbzj1X9vgy2pAkmyz8TW02VIAQx_eeL4yu976LXeDnolYJEs9DsoGeENpxu6OtfDmvxc/exec", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        title: title,
-        content: content,
-        key: "admin123"
-      })
+      body: formData
     });
 
     const data = await res.json();
-    console.log("Response:", data);
 
     if (data.success) {
-      alert("✅ Artikel berhasil dipublish!");
+      alert("✅ File berhasil diupload & tampil di blog");
       location.href = "/";
     } else {
       alert("❌ Error: " + JSON.stringify(data));
     }
 
   } catch (err) {
-    console.error("ERROR:", err);
+    console.error(err);
     alert("❌ Gagal koneksi ke server");
   } finally {
     btn.disabled = false;
-    btn.innerText = "Publish";
+    btn.innerText = "Upload";
   }
 }
 </script>
