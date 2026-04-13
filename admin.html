@@ -1,99 +1,84 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
+  <meta charset="UTF-8">
   <title>Admin - Tulis Artikel</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
-      font-family: Arial;
+      font-family: sans-serif;
+      background: #f5f5f5;
+      padding: 40px;
+    }
+    .container {
       max-width: 700px;
       margin: auto;
-      padding: 20px;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-
-    h1 {
-      margin-bottom: 20px;
-    }
-
     input, textarea {
       width: 100%;
       padding: 12px;
       margin: 10px 0;
+      border-radius: 8px;
       border: 1px solid #ccc;
-      border-radius: 6px;
     }
-
     button {
       padding: 12px 20px;
+      border: none;
       background: black;
       color: white;
-      border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
-    }
-
-    button:hover {
-      opacity: 0.8;
-    }
-
-    #msg {
-      margin-top: 15px;
-      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-<h1>✍️ Tulis Artikel</h1>
-
-<input id="title" placeholder="Judul artikel..." />
-
-<textarea id="content" rows="12" placeholder="Isi artikel... (boleh HTML juga)"></textarea>
-
-<button onclick="submitPost()">Publish</button>
-
-<p id="msg"></p>
-const pass = prompt("Password Admin:");
-
-if (pass !== "admin123") {
-  document.body.innerHTML = "<h2>Akses ditolak</h2>";
-}
 <script>
-const API = "https://script.google.com/macros/s/AKfycby4bOozGRubfyWgYmkgz8AaK4AA55nOFgsZ9vWWIVichcVz7JylPrmhZhIYAY1De5LM/exec";
+  const pass = prompt("Password Admin:");
+  if (pass !== "admin123") {
+    document.body.innerHTML = "<h2>Akses ditolak</h2>";
+  }
+</script>
 
-function submitPost() {
-  const title = document.getElementById("title").value.trim();
-  const content = document.getElementById("content").value.trim();
-  const msg = document.getElementById("msg");
+<div class="container">
+  <h1>✍️ Tulis Artikel</h1>
+
+  <input id="title" placeholder="Judul artikel...">
+  <textarea id="content" rows="10" placeholder="Isi artikel... (boleh HTML)"></textarea>
+
+  <button onclick="publish()">Publish</button>
+</div>
+
+<script>
+async function publish() {
+  const title = document.getElementById("title").value;
+  const content = document.getElementById("content").value;
 
   if (!title || !content) {
-    msg.innerText = "Judul dan isi wajib diisi!";
+    alert("Judul & konten wajib diisi");
     return;
   }
 
-  msg.innerText = "Mengirim...";
-
-  fetch(API, {
-  method: "POST",
-  body: JSON.stringify({
-    title: title,
-    content: content,
-    key: "admin123"
-  })
-})
-  .then(res => res.json())
-  .then(res => {
-    if (res.success) {
-      msg.innerHTML = "✅ Berhasil masuk ke Drive & blog!<br>Refresh halaman blog.";
-      document.getElementById("title").value = "";
-      document.getElementById("content").value = "";
-    } else {
-      msg.innerText = "❌ Error: " + (res.error || "gagal");
-    }
-  })
-  .catch(() => {
-    msg.innerText = "❌ Gagal koneksi";
+  const res = await fetch("WEB_APP_URL_KAMU", {
+    method: "POST",
+    body: JSON.stringify({
+      title,
+      content,
+      key: "admin123"
+    })
   });
+
+  const data = await res.json();
+
+  if (data.success) {
+    alert("✅ Artikel masuk ke Drive & Blog");
+    location.href = "/";
+  } else {
+    alert("❌ Error: " + JSON.stringify(data));
+  }
 }
 </script>
 
