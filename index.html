@@ -1,18 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <div style="margin-bottom:20px;">
-  <a href="/admin.html" style="
-    padding:10px 15px;
-    background:#000;
-    color:#fff;
-    text-decoration:none;
-    border-radius:5px;
-  ">
-    + Tulis Artikel
-  </a>
-    <a href="/upload.html">📎 Upload Dokumen</a>
-</div>
   <meta charset="UTF-8">
   <title>Blog Edukasi Holistic</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,6 +21,20 @@
       text-align: center;
     }
 
+    .topbar {
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      padding: 10px 15px;
+      background: black;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      margin-right: 10px;
+      font-size: 14px;
+    }
+
     #search {
       width: 100%;
       padding: 10px;
@@ -49,11 +51,11 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
-    a {
-      text-decoration: none;
-      color: #2b6cb0;
+    .title {
       font-size: 20px;
       font-weight: bold;
+      color: #2b6cb0;
+      text-decoration: none;
     }
 
     .meta {
@@ -61,13 +63,35 @@
       font-size: 14px;
       margin-top: 5px;
     }
+
+    .delete-btn {
+      margin-top: 10px;
+      background: red;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .empty {
+      text-align: center;
+      color: gray;
+    }
   </style>
 </head>
 
 <body>
   <main class="container">
 
+    <div class="topbar">
+      <a href="/admin.html" class="btn">+ Tulis Artikel</a>
+      <a href="/upload.html" class="btn">📎 Upload Dokumen</a>
+    </div>
+
     <h1>Blog Edukasi Holistic</h1>
+
     <input type="text" id="search" placeholder="Cari artikel..." />
 
     <div id="posts">Loading...</div>
@@ -77,35 +101,60 @@
 <script>
 const API = "https://script.google.com/macros/s/AKfycbzj1X9vgy2pAkmyz8TW02VIAQx_eeL4yu976LXeDnolYJEs9DsoGeENpxu6OtfDmvxc/exec";
 
+// 🔐 MODE ADMIN (ubah ke false kalau public)
+const isAdmin = true;
+
 let allPosts = [];
 
+// ================= LOAD DATA =================
 fetch(API)
   .then(res => res.json())
   .then(data => {
+
+    if (!Array.isArray(data)) {
+      throw new Error("Format data salah");
+    }
+
     allPosts = data
-      .filter(p => p.status === "publish")
+      .filter(p => p && p.status === "publish" && p.title)
       .sort((a,b) => new Date(b.date) - new Date(a.date));
 
     render(allPosts);
   })
   .catch(() => {
     document.getElementById("posts").innerHTML =
-      "<p style='color:red'>Gagal memuat data</p>";
+      "<p class='empty'>❌ Gagal memuat data</p>";
   });
 
+// ================= RENDER =================
 function render(data) {
   let html = "";
 
-  if (data.length === 0) {
-    html = "<p>Tidak ada artikel</p>";
+  if (!data || data.length === 0) {
+    html = "<p class='empty'>Tidak ada artikel</p>";
   } else {
     data.forEach(post => {
+
+      const title = post.title || "Tanpa Judul";
+      const slug = post.slug || "#";
+      const date = formatDate(post.date);
+      const author = post.author || "-";
+
       html += `
         <div class="card">
-          <a href="post.html?slug=${post.slug}">${post.title}</a>
+          <a class="title" href="post.html?slug=${slug}">
+            ${title}
+          </a>
+
           <div class="meta">
-            ${new Date(post.date).toLocaleDateString("id-ID")} • ${post.author}
+            ${date} • ${author}
           </div>
+
+          ${isAdmin ? `
+            <button class="delete-btn" onclick="deletePost('${slug}')">
+              Hapus
+            </button>
+          ` : ""}
         </div>
       `;
     });
@@ -114,7 +163,36 @@ function render(data) {
   document.getElementById("posts").innerHTML = html;
 }
 
-// SEARCH
+// ================= DELETE =================
+async function deletePost(slug) {
+  const confirmDelete = confirm("Yakin ingin menghapus artikel ini?");
+  if (!confirmDelete) return;
+
+  try {
+    const res = await fetch(API, {
+      method: "POST",
+      body: JSON.stringify({
+        key: "admin123",
+        action: "delete",
+        slug: slug
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert("✅ Artikel berhasil dihapus");
+      location.reload();
+    } else {
+      alert("❌ Error: " + JSON.stringify(data));
+    }
+
+  } catch (err) {
+    alert("❌ Gagal koneksi ke server");
+  }
+}
+
+// ================= SEARCH =================
 document.getElementById("search").addEventListener("input", function() {
   const keyword = this.value.toLowerCase();
 
@@ -125,6 +203,20 @@ document.getElementById("search").addEventListener("input", function() {
 
   render(filtered);
 });
+
+// ================= DATE FORMAT =================
+function formatDate(d) {
+  if (!d) return "-";
+
+  const date = new Date(d);
+  if (isNaN(date)) return "-";
+
+  return date.toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+}
 </script>
 
 </body>
