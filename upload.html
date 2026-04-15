@@ -1,8 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Upload Dokumen</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  font-family: sans-serif;
+  background: #f5f5f5;
+  padding: 40px;
+}
+.container {
+  max-width: 500px;
+  margin: auto;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+button {
+  padding: 12px 20px;
+  background: black;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+button:disabled {
+  background: gray;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>📎 Upload File DOC</h2>
+
+  <input type="file" id="file" accept=".doc,.docx"><br><br>
+
+  <button id="btn">Upload</button>
+
+  <p id="status"></p>
+</div>
+
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbzj1X9vgy2pAkmyz8TW02VIAQx_eeL4yu976LXeDnolYJEs9DsoGeENpxu6OtfDmvxc/exec";
 
+document.getElementById("btn").addEventListener("click", upload);
+
 async function upload() {
   const fileInput = document.getElementById("file");
+  const btn = document.getElementById("btn");
+  const status = document.getElementById("status");
+
+  if (!fileInput) {
+    alert("Input file tidak ditemukan");
+    return;
+  }
 
   if (fileInput.files.length === 0) {
     alert("Pilih file dulu!");
@@ -16,11 +74,15 @@ async function upload() {
     return;
   }
 
+  btn.disabled = true;
+  status.innerText = "Uploading...";
+
   try {
     const base64 = await toBase64(file);
 
-    if (!base64) {
+    if (!base64 || !base64.includes(",")) {
       alert("Gagal membaca file");
+      btn.disabled = false;
       return;
     }
 
@@ -30,7 +92,7 @@ async function upload() {
       fileName: file.name
     };
 
-    console.log("PAYLOAD:", payload); // 🔥 DEBUG
+    console.log("PAYLOAD:", payload);
 
     const res = await fetch(API_URL, {
       method: "POST",
@@ -40,18 +102,28 @@ async function upload() {
     const text = await res.text();
     console.log("RAW RESPONSE:", text);
 
-    const data = JSON.parse(text);
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      alert("Response bukan JSON");
+      btn.disabled = false;
+      return;
+    }
 
     if (data.success) {
-      alert("✅ File berhasil diupload!");
+      status.innerHTML = "✅ Upload berhasil!<br>" +
+        (data.fileId ? "ID: " + data.fileId : "");
     } else {
-      alert("❌ Error: " + JSON.stringify(data));
+      status.innerText = "❌ Error: " + JSON.stringify(data);
     }
 
   } catch (err) {
     console.error(err);
-    alert("❌ Upload gagal");
+    status.innerText = "❌ Upload gagal";
   }
+
+  btn.disabled = false;
 }
 
 function toBase64(file) {
@@ -65,3 +137,6 @@ function toBase64(file) {
   });
 }
 </script>
+
+</body>
+</html>
